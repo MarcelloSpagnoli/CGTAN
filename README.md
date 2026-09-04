@@ -1,20 +1,30 @@
 # CGTAN
 
-Progetto I di Computer Graphics.
+Project I for the Computer Graphics course (University of Bologna).
 
-## Requisiti
+## About
+
+CGTAN is a real-time, OpenGL-based breakout/arkanoid-style game. A paddle deflects one or more balls into a grid of destructible blocks; blocks have hit points and drop power-ups when destroyed (extra balls, horizontal/vertical lasers). The game tracks an all-time points record, persisted to disk between runs.
+
+Highlights of the implementation:
+- Custom OpenGL rendering pipeline (GLFW + glad), with all game shapes — blocks, balls, lasers, the animated player character — built from raw vertex buffers rather than a modeling tool
+- The player character is a small hand-crafted 2D animation built from Hermite-interpolated ellipses (no sprite/texture assets)
+- Custom text rendering via FreeType for the HUD and menus
+- ImGui-based menu/HUD overlay, kept aligned with the actual OpenGL viewport across window resizes and HiDPI/content-scale differences
+
+## Requirements
 
 - [CMake](https://cmake.org/download/) (>= 3.10)
-- Un compilatore C++17:
-  - **Windows**: Visual Studio (workload "Sviluppo di applicazioni desktop con C++") oppure MinGW-w64
+- A C++17 compiler:
+  - **Windows**: Visual Studio (with the "Desktop development with C++" workload) or MinGW-w64
   - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
-  - **Linux**: GCC/Clang + pacchetti di sviluppo OpenGL (es. `libgl1-mesa-dev` su Debian/Ubuntu)
+  - **Linux**: GCC/Clang + OpenGL development packages (e.g. `libgl1-mesa-dev` on Debian/Ubuntu)
 
-Le librerie di terze parti (GLFW, Freetype, GLM, ImGui) vengono scaricate e compilate automaticamente da CMake al primo `cmake ..` (tramite `FetchContent`): **serve una connessione a Internet** la prima volta. Solo glad è incluso direttamente in `libs/` (è codice generato, non una libreria da scaricare).
+Third-party libraries (GLFW, Freetype, GLM, ImGui) are downloaded and built automatically by CMake on the first `cmake ..` (via `FetchContent`): **an Internet connection is required** the first time. Only glad is vendored directly under `libs/` (it's generated code, not a library to fetch).
 
 ## Build
 
-Da terminale, nella cartella del progetto:
+From a terminal, inside the project folder:
 
 ```bash
 mkdir build
@@ -23,13 +33,13 @@ cmake ..
 cmake --build .
 ```
 
-Il generatore (Visual Studio, MinGW, Make, ecc.) viene scelto automaticamente da CMake in base a cosa trova installato sul sistema. `cmake --build .` funziona a prescindere dal generatore usato.
+CMake picks the generator (Visual Studio, MinGW, Make, etc.) automatically based on what's available on the system. `cmake --build .` works regardless of which generator was chosen.
 
-La prima build richiede qualche minuto in più per scaricare e compilare le dipendenze; le build successive sono rapide come su un progetto normale.
+The first build takes a few extra minutes to download and compile the dependencies; subsequent builds are as fast as a normal project.
 
-## Eseguire
+## Run
 
-L'eseguibile si chiama `CGTAN` (su Windows `CGTAN.exe`, tipicamente in `build/Debug/` o `build/Release/` a seconda del generatore; su macOS/Linux direttamente in `build/`).
+The executable is called `CGTAN` (`CGTAN.exe` on Windows, typically under `build/Debug/` or `build/Release/` depending on the generator; directly under `build/` on macOS/Linux).
 
 ```bash
 ./CGTAN
