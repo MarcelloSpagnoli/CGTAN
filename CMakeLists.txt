@@ -8,6 +8,35 @@ if(MSVC)
 endif()
 
 include(FetchContent)
+find_package(Git REQUIRED)
+
+# Alcune dipendenze (GLM, FreeType, ImGui) portano con se' cartelle enormi
+# (doc/, test/, examples/) che non servono a compilare la libreria ma che un
+# normale FetchContent con GIT_SHALLOW scarica comunque per intero, perche'
+# non sono submodule ma file normali del repo.
+# Questa funzione fa un clone parziale (--filter=blob:none) + sparse-checkout,
+# scaricando solo le cartelle passate in SPARSE_PATHS (in modalita' "cone" i
+# file alla radice del repo, tipo CMakeLists.txt, arrivano comunque gratis).
+function(fetch_sparse name repo tag out_source_dir)
+    set(options)
+    set(oneValueArgs)
+    set(multiValueArgs SPARSE_PATHS)
+    cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    set(src_dir ${CMAKE_BINARY_DIR}/_deps/${name}-src)
+    if(NOT EXISTS ${src_dir}/CMakeLists.txt AND NOT EXISTS ${src_dir}/imgui.cpp)
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} clone --filter=blob:none --sparse --depth 1 --branch ${tag} ${repo} ${src_dir}
+            COMMAND_ERROR_IS_FATAL ANY
+        )
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} sparse-checkout set ${ARG_SPARSE_PATHS}
+            WORKING_DIRECTORY ${src_dir}
+            COMMAND_ERROR_IS_FATAL ANY
+        )
+    endif()
+    set(${out_source_dir} ${src_dir} PARENT_SCOPE)
+endfunction()
 
 # 1. LIBRERIE (scaricate e compilate da sorgente, stesse versioni usate finora)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -20,26 +49,23 @@ FetchContent_Declare(glfw
 )
 FetchContent_MakeAvailable(glfw)
 
-FetchContent_Declare(freetype
-    GIT_REPOSITORY https://github.com/freetype/freetype.git
-    GIT_TAG VER-2-14-3
-    GIT_SHALLOW TRUE
+# FreeType (clone sparse: docs/, tests/, subprojects/ non servono alla build)
+fetch_sparse(freetype https://github.com/freetype/freetype.git VER-2-14-3 freetype_SOURCE_DIR
+    SPARSE_PATHS include src builds
 )
-FetchContent_MakeAvailable(freetype)
+add_subdirectory(${freetype_SOURCE_DIR} ${CMAKE_BINARY_DIR}/_deps/freetype-build)
 
-FetchContent_Declare(glm
-    GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG 1.0.3
-    GIT_SHALLOW TRUE
+# GLM (clone sparse: ~20MB di doc/ non necessari alla build)
+fetch_sparse(glm https://github.com/g-truc/glm.git 1.0.3 glm_SOURCE_DIR
+    SPARSE_PATHS glm cmake
 )
-FetchContent_MakeAvailable(glm)
+add_subdirectory(${glm_SOURCE_DIR} ${CMAKE_BINARY_DIR}/_deps/glm-build)
 
-FetchContent_Declare(imgui
-    GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG v1.92.7
-    GIT_SHALLOW TRUE
+# ImGui (clone sparse: examples/, docs/, misc/ non servono; i sorgenti .cpp/.h
+# alla radice e backends/ arrivano comunque con il clone sparse)
+fetch_sparse(imgui https://github.com/ocornut/imgui.git v1.92.7 imgui_SOURCE_DIR
+    SPARSE_PATHS backends
 )
-FetchContent_MakeAvailable(imgui)
 
 include_directories(${glm_SOURCE_DIR} ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends libs/include ${freetype_SOURCE_DIR}/include)
 
