@@ -2,6 +2,11 @@
 
 Project I for the Computer Graphics course (University of Bologna).
 
+<p align="center">
+  <img src="cgtan1.png" height="400" alt="Menu">
+  <img src="cgtan2.png" height="400" alt="Gameplay">
+</p>
+
 ## About
 
 CGTAN is a real-time, OpenGL-based breakout/arkanoid-style game. A paddle deflects one or more balls into a grid of destructible blocks; blocks have hit points and drop power-ups when destroyed (extra balls, horizontal/vertical lasers). The game tracks an all-time points record, persisted to disk between runs.
