@@ -1,0 +1,21 @@
+#define ROWS 12.0f
+#define COLS 8.0f
+#define BLOCK_SIZE 1.0f
+#define POWER_RADIUS 0.3f
+#define BALL_RADIUS 0.3f
+#define INITIAL_BALLS 8
+#define SPAWN_PROBABILITY 0.5f
+#define TITLE "CGTAN"
+#define ROWS_FILL ROWS - 5
+#define DELAY_BETWEEN_SHOTS 0.2f
+#define BALL_SPEED 10.0f
+#define PLAYER_SPEED 2.0f
+#define TIME_TOLERANCE 20s
+#define CIRCLE_SEGMENTS 100
+#define MAX_HP 20.0f
+#define LASER_TIME_MILLIS 70
+#define BORDER_THICKNESS 0.1f
+#define POINTS_PER_HIT 10
+#define POINTS_PER_DESTROY 50
+#define FONT_SIZE_SCALE 1.0f
+#define POINTS_SIZE_SCALE 2.0f
